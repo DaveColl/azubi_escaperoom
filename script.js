@@ -19,7 +19,7 @@ const TEAM_CONFIG = {
     finalPasswords: ['krise2', 'lockdown2', 'focus2'],
     fragment: 'KRISE + 2',
     task: 'Stellt das Wort „Aareon“ mit euren Händen dar und dokumentiert den Beweis für die Systemfreigabe.',
-    lageplan: '../Escape Office/Team1Lageplan.jpeg',
+    lageplan: '../Escape Office/Team2Lageplan.jpeg',
   },
   team3: {
     id: 'team3',
@@ -30,7 +30,7 @@ const TEAM_CONFIG = {
     finalPasswords: ['krise3', 'lockdown3', 'focus3'],
     fragment: 'KRISE + 3',
     task: 'Findet 3 Dinge im Raum, die hier nicht hingehören, und kombiniert eure Beobachtung mit dem Krisenhinweis.',
-    lageplan: '../Escape Office/Team1Lageplan.jpeg',
+    lageplan: '../Escape Office/Team3Lageplan.jpeg',
   },
 };
 
