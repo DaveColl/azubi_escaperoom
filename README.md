@@ -7,12 +7,8 @@ Static Escape Office prototype for the Azubi Escape Room concept from `Escape Of
 - `index.html`: animated laptop/security unlock screen without next-page previews.
 - `script.js`: team routing, team-specific final passwords, and dependency-free JavaScript QR generation.
 - `styles.css`: CSS-only hacker/lockdown theme with Aareon branding, red alarm panels, subtle scanlines, QR reveal, and performance-focused desktop visuals.
-- `pages/team-1.html`: Team 1 lockdown dashboard with QR and final password field.
-- `pages/team-2.html`: Team 2 lockdown dashboard with QR and final password field.
-- `pages/team-3.html`: Team 3 lockdown dashboard with QR and final password field.
-- `pages/phone-team-1.html`: mobile QR target for Team 1 — jumping photo.
-- `pages/phone-team-2.html`: mobile QR target for Team 2 — spell “Aareon” with hands.
-- `pages/phone-team-3.html`: mobile QR target for Team 3 — find three misplaced things.
+- `pages/team.html`: single data-driven lockdown dashboard rendered from the `?team=` query parameter (QR + final password field).
+- `pages/phone.html`: single data-driven mobile QR target rendered from the `?team=` query parameter (team task + code fragment).
 - `pages/victory.html`: centered shared crisis-resolved screen without replay action.
 - `tests/smoke_test.py`: dependency-free static validation.
 
@@ -22,9 +18,9 @@ The prototype accepts these passwords:
 
 | Password | Destination |
 | --- | --- |
-| `team1` | `pages/team-1.html` |
-| `team2` | `pages/team-2.html` |
-| `team3` | `pages/team-3.html` |
+| `team1` | `pages/team.html?team=1` |
+| `team2` | `pages/team.html?team=2` |
+| `team3` | `pages/team.html?team=3` |
 
 Spaces, underscores, and hyphens are ignored, so `team 1` and `team-1` also work.
 

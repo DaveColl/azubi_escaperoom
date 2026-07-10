@@ -1,38 +1,47 @@
 const TEAM_CONFIG = {
   team1: {
     id: 'team1',
+    number: 1,
     name: 'Team 1',
-    route: 'pages/team-1.html',
-    phonePath: 'phone-team-1.html',
+    route: 'pages/team.html?team=1',
+    phonePath: 'phone.html?team=1',
     finalPasswords: ['krise1', 'lockdown1', 'focus1'],
+    fragment: 'KRISE + 1',
+    task: 'Macht ein Bild von allen aus dem Team, wie sie gleichzeitig springen. Kein Fuß darf den Boden berühren!',
   },
   team2: {
     id: 'team2',
+    number: 2,
     name: 'Team 2',
-    route: 'pages/team-2.html',
-    phonePath: 'phone-team-2.html',
+    route: 'pages/team.html?team=2',
+    phonePath: 'phone.html?team=2',
     finalPasswords: ['krise2', 'lockdown2', 'focus2'],
+    fragment: 'KRISE + 2',
+    task: 'Stellt das Wort „Aareon“ mit euren Händen dar und dokumentiert den Beweis für die Systemfreigabe.',
   },
   team3: {
     id: 'team3',
+    number: 3,
     name: 'Team 3',
-    route: 'pages/team-3.html',
-    phonePath: 'phone-team-3.html',
+    route: 'pages/team.html?team=3',
+    phonePath: 'phone.html?team=3',
     finalPasswords: ['krise3', 'lockdown3', 'focus3'],
+    fragment: 'KRISE + 3',
+    task: 'Findet 3 Dinge im Raum, die hier nicht hingehören, und kombiniert eure Beobachtung mit dem Krisenhinweis.',
   },
 };
 
 const PASSWORD_ROUTES = new Map([
-  ['team1', 'pages/team-1.html'],
-  ['team2', 'pages/team-2.html'],
-  ['team3', 'pages/team-3.html'],
+  ['team1', 'pages/team.html?team=1'],
+  ['team2', 'pages/team.html?team=2'],
+  ['team3', 'pages/team.html?team=3'],
 ]);
 
 const TEAM_BY_UNLOCK = new Map(Object.values(TEAM_CONFIG).map((team) => [team.id, team]));
 
 const PAGE_TRANSITION_DURATION = 520;
-const HACK_SEQUENCE_LOAD_DURATION = 2250;
-const HACK_SEQUENCE_TOTAL_DURATION = 3900;
+const HACK_SEQUENCE_LOAD_DURATION = 5200;
+const HACK_SEQUENCE_TOTAL_DURATION = 7600;
 const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)');
 const prefetchedPages = new Set();
 let navigationInProgress = false;
@@ -210,7 +219,25 @@ function playTeamHackSequence(team, destination) {
     overlay.classList.add('is-visible', 'is-loading');
   });
 
+  let progressTimer = 0;
+  if (!REDUCED_MOTION.matches && message) {
+    const startedAt = performance.now();
+    const tick = () => {
+      const elapsed = performance.now() - startedAt;
+      const ratio = Math.min(elapsed / revealHackDelay, 1);
+      const percent = Math.min(Math.round(ratio * 95), 95);
+      if (!overlay.classList.contains('is-hacked')) {
+        message.textContent = `Fortschritt ${percent}% · Verschlüsselte Sicherheitsroute wird entschlüsselt...`;
+      }
+      if (ratio < 1) {
+        progressTimer = window.setTimeout(tick, 140);
+      }
+    };
+    progressTimer = window.setTimeout(tick, 140);
+  }
+
   window.setTimeout(() => {
+    window.clearTimeout(progressTimer);
     overlay.classList.add('is-hacked');
     if (title) title.textContent = 'DU WURDEST GEHACKT';
     if (teamLabel) teamLabel.textContent = `${team.name}-Bereich kompromittiert`;
@@ -264,6 +291,88 @@ function wirePasswordForm() {
     laptop?.classList.add('is-unlocking');
     playTeamHackSequence(team, destination);
   });
+}
+
+function getTeamFromQuery() {
+  const raw = new URLSearchParams(window.location.search).get('team') || '';
+  const key = `team${raw.replace(/[^0-9]/g, '')}`;
+  return TEAM_CONFIG[key] || null;
+}
+
+function renderTeamPage() {
+  const root = document.querySelector('[data-team-page]');
+  if (!root) return;
+
+  const team = getTeamFromQuery();
+  if (!team) {
+    window.location.replace('../index.html');
+    return;
+  }
+
+  document.title = `Escape Office | ${team.name} Lockdown`;
+  root.querySelectorAll('[data-team-name]').forEach((el) => { el.textContent = team.name; });
+
+  const lead = root.querySelector('[data-team-lead]');
+  if (lead) {
+    lead.textContent = `${team.name} wurde identifiziert. Der Zugriff bleibt gesperrt, bis der mobile Hinweis gescannt und der finale Krisencode eingegeben wurde.`;
+  }
+
+  const qrIntro = root.querySelector('[data-team-qr-intro]');
+  if (qrIntro) {
+    qrIntro.textContent = `Der QR-Code führt zu eurer ${team.name}-Unterseite. Öffnet sie mit dem Smartphone und nutzt die Hinweise für den finalen Code.`;
+  }
+
+  const finalIntro = root.querySelector('[data-team-final-intro]');
+  if (finalIntro) {
+    finalIntro.textContent = `Wenn ihr den ${team.name}-Code gelöst habt, gebt ihn hier ein und beendet den Lockdown.`;
+  }
+
+  const canvas = root.querySelector('[data-qr-code]');
+  if (canvas) {
+    canvas.setAttribute('data-qr-path', `./phone.html?team=${team.number}`);
+    canvas.setAttribute('aria-label', `Animierter QR-Code für ${team.name}`);
+  }
+
+  const input = root.querySelector('[data-final-password-form] input');
+  if (input) input.placeholder = `Code ${team.name}`;
+
+  const hint = root.querySelector('[data-final-password-form] .hint');
+  if (hint) hint.textContent = `Temporärer Testcode: ${team.finalPasswords[0]}`;
+
+  const form = root.querySelector('[data-final-password-form]');
+  if (form) form.setAttribute('data-team', team.id);
+}
+
+function renderPhonePage() {
+  const root = document.querySelector('[data-phone-page]');
+  if (!root) return;
+
+  const team = getTeamFromQuery();
+  if (!team) {
+    window.location.replace('../index.html');
+    return;
+  }
+
+  document.title = `Escape Office | ${team.name} Mobile Spur`;
+  root.querySelectorAll('[data-team-name]').forEach((el) => { el.textContent = team.name; });
+
+  const eyebrow = root.querySelector('[data-phone-eyebrow]');
+  if (eyebrow) eyebrow.textContent = `Mobile Freigabe · ${team.name}`;
+
+  const task = root.querySelector('[data-team-task]');
+  if (task) task.textContent = team.task;
+
+  const fragment = root.querySelector('[data-team-fragment]');
+  if (fragment) fragment.textContent = team.fragment;
+
+  const input = root.querySelector('[data-final-password-form] input');
+  if (input) input.placeholder = `Code ${team.name}`;
+
+  const hint = root.querySelector('[data-final-password-form] .hint');
+  if (hint) hint.textContent = `Temporärer Testcode: ${team.finalPasswords[0]}`;
+
+  const form = root.querySelector('[data-final-password-form]');
+  if (form) form.setAttribute('data-team', team.id);
 }
 
 function wireRevealButtons() {
@@ -512,8 +621,8 @@ function createQrMatrix(text) {
   setFormat(8, 8, 7);
   setFormat(8, 7, 8);
   for (let index = 9; index < 15; index += 1) setFormat(8, 14 - index, index);
-  for (let index = 0; index < 8; index += 1) setFormat(8, QR_SIZE - 1 - index, index);
-  for (let index = 8; index < 15; index += 1) setFormat(QR_SIZE - 15 + index, 8, index);
+  for (let index = 0; index < 8; index += 1) setFormat(QR_SIZE - 1 - index, 8, index);
+  for (let index = 8; index < 15; index += 1) setFormat(8, QR_SIZE - 15 + index, index);
 
   return modules;
 }
@@ -565,6 +674,8 @@ function wireQrCodes() {
 
 wirePageTransitions();
 wirePasswordForm();
+renderTeamPage();
+renderPhonePage();
 wireRevealButtons();
 wireFinalPasswordForms();
 wireQrCodes();

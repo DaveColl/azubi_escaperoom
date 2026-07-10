@@ -11,12 +11,8 @@ REQUIRED_FILES = [
     ROOT / 'index.html',
     ROOT / 'styles.css',
     ROOT / 'script.js',
-    ROOT / 'pages' / 'team-1.html',
-    ROOT / 'pages' / 'team-2.html',
-    ROOT / 'pages' / 'team-3.html',
-    ROOT / 'pages' / 'phone-team-1.html',
-    ROOT / 'pages' / 'phone-team-2.html',
-    ROOT / 'pages' / 'phone-team-3.html',
+    ROOT / 'pages' / 'team.html',
+    ROOT / 'pages' / 'phone.html',
     ROOT / 'pages' / 'victory.html',
 ]
 
@@ -81,13 +77,13 @@ def test_html_links_and_ids():
                     fail(f'index.html missing #{required_id}')
             if 'asset-strip' in html_file.read_text(encoding='utf-8'):
                 fail('index.html still contains first-page preview asset strip')
-        elif html_file.name.startswith('team-'):
+        elif html_file.name == 'team.html':
             html = html_file.read_text(encoding='utf-8')
             if 'data-qr-code' not in html:
                 fail(f'{html_file.relative_to(ROOT)} missing generated QR canvas')
             if 'data-final-password-form' not in html:
                 fail(f'{html_file.relative_to(ROOT)} missing final password form')
-        elif html_file.name.startswith('phone-team-'):
+        elif html_file.name == 'phone.html':
             html = html_file.read_text(encoding='utf-8')
             if 'data-final-password-form' not in html:
                 fail(f'{html_file.relative_to(ROOT)} missing mobile final password form')
@@ -110,9 +106,9 @@ def test_css_asset_urls():
 def test_password_routes():
     script = (ROOT / 'script.js').read_text(encoding='utf-8')
     expected = {
-        "'team1', 'pages/team-1.html'",
-        "'team2', 'pages/team-2.html'",
-        "'team3', 'pages/team-3.html'",
+        "'team1', 'pages/team.html?team=1'",
+        "'team2', 'pages/team.html?team=2'",
+        "'team3', 'pages/team.html?team=3'",
     }
     for route in expected:
         if route not in script:
@@ -129,6 +125,7 @@ def test_password_routes():
 
 def test_docx_tasks_present():
     task_text = ' '.join(path.read_text(encoding='utf-8') for path in HTML_FILES)
+    task_text += ' ' + (ROOT / 'script.js').read_text(encoding='utf-8')
     for phrase in ['gleichzeitig springen', 'Aareon', '3 Dinge im Raum']:
         if phrase not in task_text:
             fail(f'Missing DOCX-derived task phrase: {phrase}')
