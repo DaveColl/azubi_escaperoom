@@ -35,40 +35,31 @@ const TEAM_CONFIG = {
 };
 
 // Final "safe" puzzle shown after the lock is opened. Each team gets a
-// different riddle about WHERE the safe (Tresor) is located (top question),
-// and the code at the bottom is the sequence of the four seasons of the year.
+// different riddle (top) that reveals where the locker/safe is hidden, and a
+// code made of the four season emojis in the exact order from the printed card.
+// The meaning of the emojis is intentionally NOT revealed on screen.
 const SAFE_PUZZLE = {
   team1: {
     id: 'team1',
     number: 1,
     name: 'Team 1',
-    question: 'Wo steht der Tresor?',
-    locationHint: 'Dort, wo der Tag im Büro beginnt: an der Wand hinter dem ersten Schreibtisch, gleich neben dem Fenster mit Blick auf den Innenhof.',
-    seasons: ['Frühling', 'Sommer', 'Herbst', 'Winter'],
+    riddle: 'Um den Schatz zu finden, sucht unter der Agora nach dem Spind den ihr erhaltet, wenn ihr die Anzahl der Reifen eines Fahrrads mit der Anzahl der Chromosomen, die ein Mensch von einem Elternteil erbt, multipliziert.',
+    code: ['🌸', '🍂', '🦩', '❄️'],
   },
   team2: {
     id: 'team2',
     number: 2,
     name: 'Team 2',
-    question: 'Wo steht der Tresor?',
-    locationHint: 'Folgt dem Flur bis zur Teeküche: der Tresor verbirgt sich im unteren Schrank unter der Kaffeemaschine.',
-    seasons: ['Frühling', 'Sommer', 'Herbst', 'Winter'],
+    riddle: 'Um den Schatz zu finden, sucht unter der Agora nach dem Spind den ihr erhaltet, wenn ihr die Anzahl der Seiten eines Würfels mit der Anzahl der Kontinente auf der Erde multipliziert.',
+    code: ['🎃', '🦋', '☃️', '⛱️'],
   },
   team3: {
     id: 'team3',
     number: 3,
     name: 'Team 3',
-    question: 'Wo steht der Tresor?',
-    locationHint: 'Im Besprechungsraum „Aare“: der Tresor steht hinter der Leinwand, verdeckt von der grünen Pflanze in der Ecke.',
-    seasons: ['Frühling', 'Sommer', 'Herbst', 'Winter'],
+    riddle: 'Um den Schatz zu finden, sucht unter der Agora nach dem Spind den ihr erhaltet, wenn ihr die Anzahl der Stunden auf einer Wanduhr mit der Anzahl der Primärfarben multipliziert und die Anzahl der Monde der Erde addiert.',
+    code: ['🏖️', '🌼', '🎄', '🌰'],
   },
-};
-
-const SEASON_META = {
-  'Frühling': { icon: '🌱', tint: '#7be495' },
-  'Sommer': { icon: '☀️', tint: '#ffd166' },
-  'Herbst': { icon: '🍂', tint: '#f4a259' },
-  'Winter': { icon: '❄️', tint: '#8ecbff' },
 };
 
 const PASSWORD_ROUTES = new Map([
@@ -694,10 +685,10 @@ function playLockUnlockSequence(team, destination) {
         </svg>
         <div class="lock-key" aria-hidden="true">
           <svg viewBox="0 0 120 40">
-            <circle cx="24" cy="20" r="15" fill="none" stroke="currentColor" stroke-width="6"/>
-            <rect x="36" y="16" width="74" height="8" rx="2"/>
-            <rect x="96" y="24" width="8" height="12" rx="2"/>
-            <rect x="82" y="24" width="8" height="9" rx="2"/>
+            <circle cx="100" cy="20" r="14" fill="none" stroke="currentColor" stroke-width="6"/>
+            <rect x="22" y="16" width="72" height="8" rx="2"/>
+            <rect x="16" y="24" width="8" height="12" rx="2"/>
+            <rect x="30" y="24" width="8" height="10" rx="2"/>
           </svg>
         </div>
         <p class="lock-caption">${team.name}: Tresor wird entriegelt&hellip;</p>
@@ -729,24 +720,16 @@ function renderVictoryPuzzle() {
   root.querySelectorAll('[data-team-name]').forEach((el) => { el.textContent = puzzle.name; });
 
   const question = root.querySelector('[data-safe-question]');
-  if (question) question.textContent = puzzle.question;
-
-  const hint = root.querySelector('[data-safe-hint]');
-  if (hint) hint.textContent = puzzle.locationHint;
+  if (question) question.textContent = puzzle.riddle;
 
   const code = root.querySelector('[data-safe-code]');
   if (code) {
     code.innerHTML = '';
-    puzzle.seasons.forEach((season, index) => {
-      const meta = SEASON_META[season] || { icon: '•', tint: '#63e6be' };
+    puzzle.code.forEach((emoji, index) => {
       const cell = document.createElement('div');
       cell.className = 'season-cell';
-      cell.style.setProperty('--season-tint', meta.tint);
       cell.style.setProperty('--season-delay', `${index * 140}ms`);
-      cell.innerHTML = `
-        <span class="season-index">${index + 1}</span>
-        <span class="season-icon" aria-hidden="true">${meta.icon}</span>
-        <span class="season-name">${season}</span>`;
+      cell.innerHTML = `<span class="season-icon" aria-hidden="true">${emoji}</span>`;
       code.append(cell);
     });
   }
