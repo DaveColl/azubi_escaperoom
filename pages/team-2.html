@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Escape Office | Team 2 Lockdown</title>
+  <meta name="description" content="Lockdown-Dashboard für Team 2 mit animiertem QR-Code und finalem Krisencode.">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body class="lockdown-page team-two">
+  <div class="noise" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+  <div class="alarm-glow" aria-hidden="true"></div>
+
+  <main class="lockdown-shell reveal-in" aria-labelledby="lockdown-title">
+    <section class="lockdown-hero">
+      <p class="eyebrow danger-text">System Lockdown</p>
+      <h1 id="lockdown-title">Lockdown im Headquarter</h1>
+      <p class="lead">Team 2 wurde identifiziert. Der Zugriff ist eingeschränkt, bis der mobile Hinweis gescannt und der finale Krisencode eingegeben wurde.</p>
+      <div class="lockdown-sign" aria-hidden="true">
+        <span class="lock-icon">▣</span>
+        <strong>ZUGRIFF VERWEIGERT</strong>
+      </div>
+    </section>
+
+    <section class="mission-card lockdown-panel qr-panel delayed reveal-in" aria-labelledby="qr-title">
+      <div class="panel-header">
+        <span class="team-badge danger-badge">Team 2</span>
+        <span class="panel-status">QR-Übertragung aktiv</span>
+      </div>
+      <h2 id="qr-title">Mobile Spur scannen</h2>
+      <p>Der QR-Code führt zu eurer Team-2-Unterseite. Öffnet sie mit dem Smartphone und nutzt die Hinweise für den finalen Code.</p>
+
+      <div class="qr-vault" role="img" aria-label="Animierter QR-Code für Team 2">
+        <canvas data-qr-code data-qr-path="./phone-team-2.html" data-qr-link="#qrLinkTeam2" width="420" height="420"></canvas>
+        <span class="qr-scanline" aria-hidden="true"></span>
+        <span class="qr-corner top-left" aria-hidden="true"></span>
+        <span class="qr-corner top-right" aria-hidden="true"></span>
+        <span class="qr-corner bottom-left" aria-hidden="true"></span>
+        <span class="qr-corner bottom-right" aria-hidden="true"></span>
+      </div>
+      <a class="fallback-link" id="qrLinkTeam2" href="./phone-team-2.html">Telefonseite öffnen</a>
+    </section>
+
+    <section class="mission-card lockdown-panel final-panel delayed-more reveal-in" aria-labelledby="final-title">
+      <p class="eyebrow">Krisenfreigabe</p>
+      <h2 id="final-title">Finalen Code eingeben</h2>
+      <p>Wenn ihr den Team-2-Code gelöst habt, gebt ihn hier ein und beendet den Lockdown.</p>
+      <form class="password-form final-password-form" data-final-password-form data-team="team2" autocomplete="off">
+        <label for="finalPasswordTeam2">Finaler Krisencode</label>
+        <div class="password-row">
+          <input id="finalPasswordTeam2" name="finalPassword" type="password" placeholder="Code Team 2" required>
+          <button type="submit">Krise lösen</button>
+        </div>
+        <p class="hint">Temporärer Testcode: krise2</p>
+        <p class="feedback" role="status" aria-live="polite"></p>
+      </form>
+      <a class="back-link" href="../index.html">Zurück zum Laptop</a>
+    </section>
+  </main>
+
+  <script src="../script.js" defer></script>
+</body>
+</html>
+

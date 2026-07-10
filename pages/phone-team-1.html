@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Escape Office | Team 1 Mobile Spur</title>
+  <meta name="description" content="Mobile Team-1-Spur für den Escape Office Lockdown.">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body class="phone-page team-one">
+  <div class="noise" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+
+  <main class="phone-shell reveal-in" aria-labelledby="phone-title">
+    <section class="phone-device">
+      <div class="phone-top" aria-hidden="true"></div>
+      <div class="phone-screen">
+        <p class="eyebrow danger-text">Mobile Freigabe · Team 1</p>
+        <h1 id="phone-title">Hinweis entschlüsselt</h1>
+        <p class="lead">Macht ein Bild von allen aus dem Team, wie sie gleichzeitig springen. Kein Fuß darf den Boden berühren!</p>
+        <div class="phone-clue">
+          <span>Code-Fragment</span>
+          <strong>KRISE + 1</strong>
+        </div>
+        <form class="password-form final-password-form" data-final-password-form data-team="team1" autocomplete="off">
+          <label for="phoneFinalPasswordTeam1">Finaler Krisencode</label>
+          <div class="password-row">
+            <input id="phoneFinalPasswordTeam1" name="finalPassword" type="password" placeholder="Code Team 1" required>
+            <button type="submit">Freigeben</button>
+          </div>
+          <p class="hint">Temporärer Testcode: krise1</p>
+          <p class="feedback" role="status" aria-live="polite"></p>
+        </form>
+        <a class="fallback-link" href="team-1.html">Zur Lockdown-Seite</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="../script.js" defer></script>
+</body>
+</html>
+

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Escape Office | Sicherheitszugang</title>
+  <meta name="description" content="Escape Office Startseite mit animiertem Sicherheitszugang.">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="landing-page">
+  <div class="noise" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+
+  <main class="hero-shell" aria-labelledby="page-title">
+    <section class="briefing-card reveal-in">
+      <p class="eyebrow">Azubi Escape Room</p>
+      <h1 id="page-title">Escape Office</h1>
+      <p class="briefing-text">
+        Der Laptop ist gesperrt. Gebt den Zugangscode ein, um die nächste Sicherheitsstufe zu öffnen.
+      </p>
+      <ul class="status-list" aria-label="Systemstatus">
+        <li><span></span> Laptop isoliert</li>
+        <li><span></span> Passwortprüfung aktiv</li>
+        <li><span></span> Routen verschlüsselt</li>
+      </ul>
+    </section>
+
+    <section class="laptop-stage reveal-in delayed" aria-label="Laptop entsperren">
+      <div class="desk-glow" aria-hidden="true"></div>
+      <div class="laptop">
+        <div class="screen">
+          <div class="screen-topbar">
+            <span class="dot red"></span>
+            <span class="dot amber"></span>
+            <span class="dot green"></span>
+            <span class="terminal-title">AAREON-OFFICE-LOCK</span>
+          </div>
+
+          <div class="terminal-panel" id="terminalPanel">
+            <div class="terminal-brand" aria-label="Aareon">
+              <img src="aareon_logo_white.png" alt="Aareon Logo">
+            </div>
+            <p class="terminal-line">&gt; Starte Sicherheitsabfrage...</p>
+            <p class="terminal-line">&gt; Benutzer: nicht identifiziert</p>
+            <p class="terminal-line flicker">&gt; Status: GESPERRT</p>
+
+            <form class="password-form" id="passwordForm" autocomplete="off">
+              <label for="passwordInput">Zugangscode</label>
+              <div class="password-row">
+                <input
+                  id="passwordInput"
+                  name="password"
+                  type="password"
+                  inputmode="text"
+                  placeholder="Passwort eingeben"
+                  aria-describedby="passwordFeedback passwordHint"
+                  required
+                >
+                <button type="submit">Entsperren</button>
+              </div>
+              <p class="hint" id="passwordHint">Keine Team-Information sichtbar, bis der Code akzeptiert wurde.</p>
+              <p class="unlock-team" id="unlockTeam" hidden></p>
+              <p class="feedback" id="passwordFeedback" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+        </div>
+        <div class="keyboard" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+          <span class="wide"></span><span class="wide"></span><span class="wide"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+  <script src="./script.js" defer></script>
+</body>
+</html>
+
