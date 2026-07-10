@@ -12,16 +12,24 @@
   <div class="scanline" aria-hidden="true"></div>
 
   <main class="victory-shell reveal-in" aria-labelledby="victory-title">
-    <section class="victory-card">
+    <section class="victory-card safe-card" data-safe-puzzle>
       <img class="victory-logo" src="../aareon_logo_white.png" alt="Aareon Logo">
-      <p class="eyebrow">Crisis resolved</p>
-      <h1 id="victory-title">Krise gelöst</h1>
-      <p class="lead">Der Lockdown wurde aufgehoben. Das Headquarter ist wieder freigegeben.</p>
-      <div class="resolution-grid" aria-label="Systemstatus">
-        <span>LOCKDOWN: AUS</span>
-        <span>ZUGRIFF: ERLAUBT</span>
-        <span>AAREON: GESICHERT</span>
+      <p class="eyebrow">Krise gelöst · Lockdown aufgehoben · <span data-team-name>Team</span></p>
+
+      <div class="safe-vault" aria-hidden="true">
+        <div class="safe-door">
+          <span class="safe-dial"></span>
+          <span class="safe-handle"></span>
+        </div>
       </div>
+
+      <h1 id="victory-title" data-safe-question>Wo steht der Tresor?</h1>
+      <p class="lead safe-hint" data-safe-hint>Der Standort des Tresors wird geladen&hellip;</p>
+
+      <p class="eyebrow safe-code-label">Tresor-Code · Die vier Jahreszeiten</p>
+      <div class="safe-code resolution-grid" data-safe-code aria-label="Tresor-Code aus den vier Jahreszeiten"></div>
+
+      <p class="hint safe-footnote">Öffnet den Tresor am ermittelten Standort mit dieser Reihenfolge, um die Krise endgültig zu beenden.</p>
     </section>
   </main>
 

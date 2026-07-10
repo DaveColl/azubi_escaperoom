@@ -34,6 +34,43 @@ const TEAM_CONFIG = {
   },
 };
 
+// Final "safe" puzzle shown after the lock is opened. Each team gets a
+// different riddle about WHERE the safe (Tresor) is located (top question),
+// and the code at the bottom is the sequence of the four seasons of the year.
+const SAFE_PUZZLE = {
+  team1: {
+    id: 'team1',
+    number: 1,
+    name: 'Team 1',
+    question: 'Wo steht der Tresor?',
+    locationHint: 'Dort, wo der Tag im Büro beginnt: an der Wand hinter dem ersten Schreibtisch, gleich neben dem Fenster mit Blick auf den Innenhof.',
+    seasons: ['Frühling', 'Sommer', 'Herbst', 'Winter'],
+  },
+  team2: {
+    id: 'team2',
+    number: 2,
+    name: 'Team 2',
+    question: 'Wo steht der Tresor?',
+    locationHint: 'Folgt dem Flur bis zur Teeküche: der Tresor verbirgt sich im unteren Schrank unter der Kaffeemaschine.',
+    seasons: ['Frühling', 'Sommer', 'Herbst', 'Winter'],
+  },
+  team3: {
+    id: 'team3',
+    number: 3,
+    name: 'Team 3',
+    question: 'Wo steht der Tresor?',
+    locationHint: 'Im Besprechungsraum „Aare“: der Tresor steht hinter der Leinwand, verdeckt von der grünen Pflanze in der Ecke.',
+    seasons: ['Frühling', 'Sommer', 'Herbst', 'Winter'],
+  },
+};
+
+const SEASON_META = {
+  'Frühling': { icon: '🌱', tint: '#7be495' },
+  'Sommer': { icon: '☀️', tint: '#ffd166' },
+  'Herbst': { icon: '🍂', tint: '#f4a259' },
+  'Winter': { icon: '❄️', tint: '#8ecbff' },
+};
+
 const PASSWORD_ROUTES = new Map([
   ['team1', 'pages/team.html?team=1'],
   ['team2', 'pages/team.html?team=2'],
@@ -622,11 +659,97 @@ function wireFinalPasswordForms() {
         return;
       }
 
-      setFeedback(feedback, `${team.name}: Krise gelöst. System wird freigegeben...`, 'success');
-      document.body.classList.add('crisis-resolving');
-      navigateWithTransition('victory.html', 950);
+      setFeedback(feedback, `${team.name}: Krise gelöst. Tresor wird entriegelt...`, 'success');
+      if (input) input.disabled = true;
+      form.querySelector('button[type="submit"]')?.setAttribute('disabled', '');
+      playLockUnlockSequence(team, `victory.html?team=${team.number}`);
     });
   });
+}
+
+const LOCK_SEQUENCE_DURATION = 2600;
+
+function playLockUnlockSequence(team, destination) {
+  prefetchPage(destination);
+
+  if (REDUCED_MOTION.matches) {
+    document.body.classList.add('crisis-resolving');
+    navigateWithTransition(destination, 400);
+    return;
+  }
+
+  let overlay = document.querySelector('#lockOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'lockOverlay';
+    overlay.className = 'lock-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.innerHTML = `
+      <div class="lock-stage">
+        <svg class="lock-svg" viewBox="0 0 200 220" role="img" aria-label="Schloss wird entriegelt">
+          <path class="lock-shackle" d="M60 92 V60 a40 40 0 0 1 80 0 V92" fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="round"/>
+          <rect class="lock-body" x="42" y="92" width="116" height="96" rx="16"/>
+          <circle class="lock-keyhole" cx="100" cy="132" r="11"/>
+          <rect class="lock-keyhole-slot" x="95" y="132" width="10" height="30" rx="4"/>
+        </svg>
+        <div class="lock-key" aria-hidden="true">
+          <svg viewBox="0 0 120 40">
+            <circle cx="24" cy="20" r="15" fill="none" stroke="currentColor" stroke-width="6"/>
+            <rect x="36" y="16" width="74" height="8" rx="2"/>
+            <rect x="96" y="24" width="8" height="12" rx="2"/>
+            <rect x="82" y="24" width="8" height="9" rx="2"/>
+          </svg>
+        </div>
+        <p class="lock-caption">${team.name}: Tresor wird entriegelt&hellip;</p>
+      </div>`;
+    document.body.append(overlay);
+  }
+
+  window.requestAnimationFrame(() => {
+    overlay.classList.add('is-visible');
+    window.requestAnimationFrame(() => overlay.classList.add('is-turning'));
+  });
+
+  window.setTimeout(() => overlay.classList.add('is-open'), LOCK_SEQUENCE_DURATION - 700);
+  navigateWithTransition(destination, LOCK_SEQUENCE_DURATION);
+}
+
+function renderVictoryPuzzle() {
+  const root = document.querySelector('[data-safe-puzzle]');
+  if (!root) return;
+
+  const team = getTeamFromQuery();
+  const puzzle = team ? SAFE_PUZZLE[team.id] : null;
+  if (!puzzle) {
+    // Fallback: keep a generic resolved screen if no team is provided.
+    return;
+  }
+
+  document.title = `Escape Office | ${puzzle.name} · Tresor`;
+  root.querySelectorAll('[data-team-name]').forEach((el) => { el.textContent = puzzle.name; });
+
+  const question = root.querySelector('[data-safe-question]');
+  if (question) question.textContent = puzzle.question;
+
+  const hint = root.querySelector('[data-safe-hint]');
+  if (hint) hint.textContent = puzzle.locationHint;
+
+  const code = root.querySelector('[data-safe-code]');
+  if (code) {
+    code.innerHTML = '';
+    puzzle.seasons.forEach((season, index) => {
+      const meta = SEASON_META[season] || { icon: '•', tint: '#63e6be' };
+      const cell = document.createElement('div');
+      cell.className = 'season-cell';
+      cell.style.setProperty('--season-tint', meta.tint);
+      cell.style.setProperty('--season-delay', `${index * 140}ms`);
+      cell.innerHTML = `
+        <span class="season-index">${index + 1}</span>
+        <span class="season-icon" aria-hidden="true">${meta.icon}</span>
+        <span class="season-name">${season}</span>`;
+      code.append(cell);
+    });
+  }
 }
 
 function createBitBuffer() {
@@ -878,6 +1001,7 @@ wirePasswordForm();
 wireSetupForm();
 renderTeamPage();
 renderPhonePage();
+renderVictoryPuzzle();
 wireRevealButtons();
 wireFinalPasswordForms();
 wireQrCodes();
