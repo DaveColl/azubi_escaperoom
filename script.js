@@ -8,6 +8,7 @@ const TEAM_CONFIG = {
     finalPasswords: ['krise1', 'lockdown1', 'focus1'],
     fragment: 'KRISE + 1',
     task: 'Macht ein Bild von allen aus dem Team, wie sie gleichzeitig springen. Kein Fuß darf den Boden berühren!',
+    lageplan: '../Escape Office/Team1Lageplan.jpeg',
   },
   team2: {
     id: 'team2',
@@ -18,6 +19,7 @@ const TEAM_CONFIG = {
     finalPasswords: ['krise2', 'lockdown2', 'focus2'],
     fragment: 'KRISE + 2',
     task: 'Stellt das Wort „Aareon“ mit euren Händen dar und dokumentiert den Beweis für die Systemfreigabe.',
+    lageplan: '../Escape Office/Team1Lageplan.jpeg',
   },
   team3: {
     id: 'team3',
@@ -28,6 +30,7 @@ const TEAM_CONFIG = {
     finalPasswords: ['krise3', 'lockdown3', 'focus3'],
     fragment: 'KRISE + 3',
     task: 'Findet 3 Dinge im Raum, die hier nicht hingehören, und kombiniert eure Beobachtung mit dem Krisenhinweis.',
+    lageplan: '../Escape Office/Team1Lageplan.jpeg',
   },
 };
 
@@ -336,6 +339,7 @@ function wireSetupForm() {
 
   const passwordInput = document.querySelector('#setupPassword');
   const finalPasswordInput = document.querySelector('#setupFinalPassword');
+  const emailInput = document.querySelector('#setupEmail');
   const feedback = document.querySelector('#setupFeedback');
   const hint = document.querySelector('#setupHint');
   const resetButton = document.querySelector('#setupReset');
@@ -350,7 +354,8 @@ function wireSetupForm() {
     if (teamRadio) teamRadio.checked = true;
     if (passwordInput) passwordInput.value = setup.password;
     if (finalPasswordInput) finalPasswordInput.value = setup.finalPassword || '';
-    if (hint) hint.textContent = `Gespeichert: ${TEAM_CONFIG[setup.team].name} · Zugang „${setup.password}“ · Krise „${setup.finalPassword || '—'}“`;
+    if (emailInput) emailInput.value = setup.email || '';
+    if (hint) hint.textContent = `Gespeichert: ${TEAM_CONFIG[setup.team].name} · Zugang „${setup.password}“ · Krise „${setup.finalPassword || '—'}“ · Mail „${setup.email || '—'}“`;
   };
 
   applyExisting();
@@ -361,6 +366,7 @@ function wireSetupForm() {
     const team = form.querySelector('input[name="team"]:checked')?.value || '';
     const password = (passwordInput?.value || '').trim();
     const finalPassword = (finalPasswordInput?.value || '').trim();
+    const email = (emailInput?.value || '').trim();
 
     if (!TEAM_CONFIG[team]) {
       setFeedback(feedback, 'Bitte ein Ziel-Team auswählen.', 'error');
@@ -379,20 +385,21 @@ function wireSetupForm() {
       return;
     }
 
-    const stored = saveSetup({ team, password, finalPassword });
+    const stored = saveSetup({ team, password, finalPassword, email });
     if (!stored) {
       setFeedback(feedback, 'Speichern fehlgeschlagen. Ist der Speicher blockiert?', 'error');
       return;
     }
 
-    setFeedback(feedback, `Gespeichert: ${TEAM_CONFIG[team].name} · Zugang „${password}“ · Krise „${finalPassword}“.`, 'success');
-    if (hint) hint.textContent = `Gespeichert: ${TEAM_CONFIG[team].name} · Zugang „${password}“ · Krise „${finalPassword}“`;
+    setFeedback(feedback, `Gespeichert: ${TEAM_CONFIG[team].name} · Zugang „${password}“ · Krise „${finalPassword}“ · Mail „${email || '—'}“.`, 'success');
+    if (hint) hint.textContent = `Gespeichert: ${TEAM_CONFIG[team].name} · Zugang „${password}“ · Krise „${finalPassword}“ · Mail „${email || '—'}“`;
   });
 
   resetButton?.addEventListener('click', () => {
     clearSetup();
     if (passwordInput) passwordInput.value = '';
     if (finalPasswordInput) finalPasswordInput.value = '';
+    if (emailInput) emailInput.value = '';
     if (hint) hint.textContent = 'Aktuell ist noch kein Setup gespeichert.';
     setFeedback(feedback, 'Setup zurückgesetzt. Standardcodes sind wieder aktiv.', 'success');
   });
@@ -445,6 +452,13 @@ function renderTeamPage() {
   if (form) form.setAttribute('data-team', team.id);
 }
 
+function formatDateStamp(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}${month}${day}`;
+}
+
 function renderPhonePage() {
   const root = document.querySelector('[data-phone-page]');
   if (!root) return;
@@ -455,6 +469,8 @@ function renderPhonePage() {
     return;
   }
 
+  const setup = loadSetup();
+
   document.title = `Escape Office | ${team.name} Mobile Spur`;
   root.querySelectorAll('[data-team-name]').forEach((el) => { el.textContent = team.name; });
 
@@ -464,21 +480,90 @@ function renderPhonePage() {
   const task = root.querySelector('[data-team-task]');
   if (task) task.textContent = team.task;
 
-  const fragment = root.querySelector('[data-team-fragment]');
-  if (fragment) fragment.textContent = team.fragment;
-
-  const input = root.querySelector('[data-final-password-form] input');
-  if (input) input.placeholder = `Code ${team.name}`;
-
-  const hint = root.querySelector('[data-final-password-form] .hint');
-  if (hint) {
-    const setup = loadSetup();
-    const code = setup && setup.team === team.id && setup.finalPassword ? setup.finalPassword : team.finalPasswords[0];
-    hint.textContent = `Temporärer Testcode: ${code}`;
+  const lageplanImage = root.querySelector('[data-lageplan-image]');
+  if (lageplanImage && team.lageplan) {
+    lageplanImage.src = team.lageplan;
+    lageplanImage.alt = `Lageplan für ${team.name}`;
   }
 
-  const form = root.querySelector('[data-final-password-form]');
-  if (form) form.setAttribute('data-team', team.id);
+  // --- Step navigation ---
+  const steps = Array.from(root.querySelectorAll('[data-phone-step]'));
+  const showStep = (name) => {
+    steps.forEach((step) => {
+      const isActive = step.getAttribute('data-phone-step') === name;
+      step.hidden = !isActive;
+      if (isActive) {
+        step.setAttribute('data-step-active', '');
+      } else {
+        step.removeAttribute('data-step-active');
+      }
+    });
+    root.scrollTop = 0;
+  };
+
+  root.querySelectorAll('[data-phone-next]').forEach((button) => {
+    button.addEventListener('click', () => showStep(button.getAttribute('data-phone-next')));
+  });
+  root.querySelectorAll('[data-phone-prev]').forEach((button) => {
+    button.addEventListener('click', () => showStep(button.getAttribute('data-phone-prev')));
+  });
+
+  // --- Camera capture, preview, auto-download ---
+  const captureInput = root.querySelector('[data-phone-capture]');
+  const preview = root.querySelector('[data-phone-preview]');
+  const previewImage = root.querySelector('[data-phone-preview-image]');
+  const downloadNote = root.querySelector('[data-phone-download-note]');
+  const downloadLink = root.querySelector('[data-phone-download]');
+  const nextMailButton = root.querySelector('[data-phone-next-mail]');
+  const fileName = `team${team.number}-jump-${formatDateStamp()}.jpg`;
+
+  captureInput?.addEventListener('change', () => {
+    const file = captureInput.files && captureInput.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      if (previewImage) previewImage.src = dataUrl;
+      preview?.removeAttribute('hidden');
+
+      if (downloadLink) {
+        downloadLink.href = dataUrl;
+        downloadLink.setAttribute('download', fileName);
+        downloadLink.removeAttribute('hidden');
+        // Auto-download to the device.
+        downloadLink.click();
+      }
+      if (downloadNote) downloadNote.textContent = `Gespeichert als „${fileName}“. Falls das Foto nur geöffnet wurde, sichert es manuell.`;
+      nextMailButton?.removeAttribute('hidden');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // --- Mail handoff (mailto:) ---
+  const mailtoLink = root.querySelector('[data-phone-mailto]');
+  const mailHint = root.querySelector('[data-phone-mail-hint]');
+  const email = (setup && setup.team === team.id && setup.email) ? setup.email : '';
+  const subject = `Escape Office · ${team.name} · Beweisfoto`;
+  const body = [
+    `${team.name} meldet: Aufgabe erledigt.`,
+    '',
+    `Aufgabe: ${team.task}`,
+    '',
+    `WICHTIG: Bitte das gespeicherte Foto „${fileName}“ an diese Mail anhängen, bevor ihr sendet.`,
+  ].join('\n');
+
+  if (mailtoLink) {
+    const params = `subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    mailtoLink.href = `mailto:${encodeURIComponent(email)}?${params}`;
+  }
+  if (mailHint) {
+    mailHint.textContent = email
+      ? `Mail wird vorbereitet an: ${email}`
+      : 'Keine Ziel-Mail im Setup hinterlegt – bitte Empfänger manuell eintragen.';
+  }
+
+  showStep('lageplan');
 }
 
 function wireRevealButtons() {

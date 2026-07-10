@@ -7,30 +7,59 @@
   <meta name="description" content="Mobile Team-Spur für den Escape Office Lockdown.">
   <link rel="stylesheet" href="../styles.css">
 </head>
-<body class="phone-page">
+<body class="phone-page breached-page">
   <div class="noise" aria-hidden="true"></div>
   <div class="scanline" aria-hidden="true"></div>
+  <div class="glitch-overlay" aria-hidden="true"></div>
 
-  <main class="phone-shell reveal-in" data-phone-page aria-labelledby="phone-title">
-    <section class="phone-device">
+  <main class="phone-shell breach-shell reveal-in" data-phone-page aria-labelledby="phone-title">
+    <section class="phone-device breach-hero">
+      <div class="breach-marquee" aria-hidden="true">
+        <span>// SYSTEM KOMPROMITTIERT // MOBILE SPUR AKTIV // FOLGE DEN ANWEISUNGEN //&nbsp;&nbsp;// SYSTEM KOMPROMITTIERT // MOBILE SPUR AKTIV //</span>
+      </div>
       <div class="phone-top" aria-hidden="true"></div>
-      <div class="phone-screen">
-        <p class="eyebrow danger-text" data-phone-eyebrow>Mobile Freigabe</p>
-        <h1 id="phone-title">Hinweis entschlüsselt</h1>
-        <p class="lead" data-team-task>Der Team-Hinweis wird geladen...</p>
-        <div class="phone-clue">
-          <span>Code-Fragment</span>
-          <strong data-team-fragment>KRISE</strong>
-        </div>
-        <form class="password-form final-password-form" data-final-password-form data-team="team1" autocomplete="off">
-          <label for="phoneFinalPassword">Finaler Krisencode</label>
-          <div class="password-row">
-            <input id="phoneFinalPassword" name="finalPassword" type="password" placeholder="Code Team" required>
-            <button type="submit">Freigeben</button>
+      <div class="phone-screen breach-screen">
+        <p class="eyebrow danger-text breach-eyebrow" data-phone-eyebrow>Mobile Freigabe</p>
+        <h1 id="phone-title" class="breach-title">Breach-Spur</h1>
+
+        <!-- STEP 1: Lageplan -->
+        <section class="breach-step" data-phone-step="lageplan" data-step-active>
+          <p class="lead breach-lead">Öffnet den Lageplan und navigiert als <strong data-team-name>Team</strong> zum markierten Zielpunkt.</p>
+          <figure class="breach-map">
+            <img data-lageplan-image src="" alt="Lageplan des Teams" loading="lazy">
+          </figure>
+          <button type="button" class="cta-button breach-action" data-phone-next="task">Am Zielpunkt angekommen</button>
+        </section>
+
+        <!-- STEP 2: Aufgabe / Kamera -->
+        <section class="breach-step" data-phone-step="task" hidden>
+          <div class="phone-clue breach-clue">
+            <span>Aufgabe</span>
+            <strong data-team-task>Aufgabe wird geladen...</strong>
           </div>
-          <p class="hint">Temporärer Testcode: krise1</p>
-          <p class="feedback" role="status" aria-live="polite"></p>
-        </form>
+          <label class="breach-capture" for="phoneCapture">
+            <span class="breach-capture-label">📸 Beweisfoto aufnehmen</span>
+            <input id="phoneCapture" data-phone-capture type="file" accept="image/*" capture="environment" hidden>
+          </label>
+          <figure class="breach-preview" data-phone-preview hidden>
+            <img data-phone-preview-image src="" alt="Aufgenommenes Beweisfoto">
+            <figcaption class="hint" data-phone-download-note></figcaption>
+          </figure>
+          <a class="cta-button breach-action" data-phone-download hidden download>Foto erneut speichern</a>
+          <button type="button" class="cta-button breach-action" data-phone-next="mail" hidden data-phone-next-mail>Weiter zur Mail-Übergabe</button>
+        </section>
+
+        <!-- STEP 3: Mail-Übergabe -->
+        <section class="breach-step" data-phone-step="mail" hidden>
+          <p class="lead breach-lead">Fast geschafft. Sendet das gespeicherte Foto per Mail an die Spielleitung.</p>
+          <div class="phone-clue breach-clue">
+            <span>Wichtig</span>
+            <strong>Hängt das eben gespeicherte Foto in der Mail als Anhang an, bevor ihr sendet.</strong>
+          </div>
+          <a class="cta-button breach-action" data-phone-mailto href="#">Mailprogramm öffnen</a>
+          <p class="hint" data-phone-mail-hint></p>
+          <button type="button" class="back-link breach-back" data-phone-prev="task">Zurück zum Foto</button>
+        </section>
       </div>
     </section>
   </main>
