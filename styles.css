@@ -1697,3 +1697,112 @@ body.lockdown-page {
   }
 }
 
+/* ========= SETUP / OPERATOR SCREEN ========= */
+.setup-hint-link {
+  margin: 1.4rem 0 0;
+  font-size: 0.85rem;
+}
+
+.setup-hint-link a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.setup-hint-link a:hover {
+  color: var(--accent);
+}
+
+.setup-page {
+  overflow: auto;
+}
+
+.setup-shell {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 2rem 1rem;
+}
+
+.setup-card {
+  width: min(40rem, 100%);
+}
+
+.setup-form {
+  margin-top: 1.6rem;
+}
+
+.setup-fieldset {
+  margin: 0 0 1.2rem;
+  padding: 1rem;
+  border: 1px solid rgba(99, 230, 190, 0.26);
+  border-radius: 0.9rem;
+  background: rgba(0, 0, 0, 0.24);
+}
+
+.setup-fieldset legend {
+  padding: 0 0.5rem;
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.setup-team-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+
+.setup-team-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.setup-team-option:hover {
+  transform: translateY(-1px);
+  border-color: rgba(99, 230, 190, 0.5);
+}
+
+.setup-team-option:has(input:checked) {
+  border-color: var(--accent);
+  background: rgba(99, 230, 190, 0.14);
+  box-shadow: 0 0 0 0.15rem rgba(99, 230, 190, 0.2);
+}
+
+.setup-team-option input {
+  accent-color: var(--accent-strong);
+}
+
+.setup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.4rem;
+}
+
+@media (max-width: 560px) {
+  .setup-team-options {
+    grid-template-columns: 1fr;
+  }
+
+  .setup-actions {
+    flex-direction: column;
+  }
+
+  .setup-actions .cta-button,
+  .setup-actions .back-link {
+    width: 100%;
+  }
+}

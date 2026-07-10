@@ -39,6 +39,37 @@ const PASSWORD_ROUTES = new Map([
 
 const TEAM_BY_UNLOCK = new Map(Object.values(TEAM_CONFIG).map((team) => [team.id, team]));
 
+const SETUP_STORAGE_KEY = 'escapeOfficeSetup';
+
+function loadSetup() {
+  try {
+    const raw = window.localStorage.getItem(SETUP_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !TEAM_CONFIG[parsed.team] || typeof parsed.password !== 'string') return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function saveSetup(setup) {
+  try {
+    window.localStorage.setItem(SETUP_STORAGE_KEY, JSON.stringify(setup));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function clearSetup() {
+  try {
+    window.localStorage.removeItem(SETUP_STORAGE_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 const PAGE_TRANSITION_DURATION = 520;
 const HACK_SEQUENCE_LOAD_DURATION = 5200;
 const HACK_SEQUENCE_TOTAL_DURATION = 7600;
@@ -262,7 +293,13 @@ function wirePasswordForm() {
     event.preventDefault();
 
     const password = normalizePassword(input.value);
-    const team = TEAM_BY_UNLOCK.get(password);
+    const setup = loadSetup();
+    let team;
+    if (setup) {
+      team = normalizePassword(setup.password) === password ? TEAM_CONFIG[setup.team] : null;
+    } else {
+      team = TEAM_BY_UNLOCK.get(password);
+    }
     const destination = team?.route;
 
     terminalPanel?.classList.remove('is-shaking');
@@ -290,6 +327,74 @@ function wirePasswordForm() {
     input.blur();
     laptop?.classList.add('is-unlocking');
     playTeamHackSequence(team, destination);
+  });
+}
+
+function wireSetupForm() {
+  const form = document.querySelector('#setupForm');
+  if (!form) return;
+
+  const passwordInput = document.querySelector('#setupPassword');
+  const finalPasswordInput = document.querySelector('#setupFinalPassword');
+  const feedback = document.querySelector('#setupFeedback');
+  const hint = document.querySelector('#setupHint');
+  const resetButton = document.querySelector('#setupReset');
+
+  const applyExisting = () => {
+    const setup = loadSetup();
+    if (!setup) {
+      if (hint) hint.textContent = 'Aktuell ist noch kein Setup gespeichert.';
+      return;
+    }
+    const teamRadio = form.querySelector(`input[name="team"][value="${setup.team}"]`);
+    if (teamRadio) teamRadio.checked = true;
+    if (passwordInput) passwordInput.value = setup.password;
+    if (finalPasswordInput) finalPasswordInput.value = setup.finalPassword || '';
+    if (hint) hint.textContent = `Gespeichert: ${TEAM_CONFIG[setup.team].name} · Zugang „${setup.password}“ · Krise „${setup.finalPassword || '—'}“`;
+  };
+
+  applyExisting();
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const team = form.querySelector('input[name="team"]:checked')?.value || '';
+    const password = (passwordInput?.value || '').trim();
+    const finalPassword = (finalPasswordInput?.value || '').trim();
+
+    if (!TEAM_CONFIG[team]) {
+      setFeedback(feedback, 'Bitte ein Ziel-Team auswählen.', 'error');
+      return;
+    }
+
+    if (!password) {
+      setFeedback(feedback, 'Bitte einen Zugangscode festlegen.', 'error');
+      passwordInput?.focus();
+      return;
+    }
+
+    if (!finalPassword) {
+      setFeedback(feedback, 'Bitte ein Krisenpasswort festlegen.', 'error');
+      finalPasswordInput?.focus();
+      return;
+    }
+
+    const stored = saveSetup({ team, password, finalPassword });
+    if (!stored) {
+      setFeedback(feedback, 'Speichern fehlgeschlagen. Ist der Speicher blockiert?', 'error');
+      return;
+    }
+
+    setFeedback(feedback, `Gespeichert: ${TEAM_CONFIG[team].name} · Zugang „${password}“ · Krise „${finalPassword}“.`, 'success');
+    if (hint) hint.textContent = `Gespeichert: ${TEAM_CONFIG[team].name} · Zugang „${password}“ · Krise „${finalPassword}“`;
+  });
+
+  resetButton?.addEventListener('click', () => {
+    clearSetup();
+    if (passwordInput) passwordInput.value = '';
+    if (finalPasswordInput) finalPasswordInput.value = '';
+    if (hint) hint.textContent = 'Aktuell ist noch kein Setup gespeichert.';
+    setFeedback(feedback, 'Setup zurückgesetzt. Standardcodes sind wieder aktiv.', 'success');
   });
 }
 
@@ -336,9 +441,6 @@ function renderTeamPage() {
   const input = root.querySelector('[data-final-password-form] input');
   if (input) input.placeholder = `Code ${team.name}`;
 
-  const hint = root.querySelector('[data-final-password-form] .hint');
-  if (hint) hint.textContent = `Temporärer Testcode: ${team.finalPasswords[0]}`;
-
   const form = root.querySelector('[data-final-password-form]');
   if (form) form.setAttribute('data-team', team.id);
 }
@@ -369,7 +471,11 @@ function renderPhonePage() {
   if (input) input.placeholder = `Code ${team.name}`;
 
   const hint = root.querySelector('[data-final-password-form] .hint');
-  if (hint) hint.textContent = `Temporärer Testcode: ${team.finalPasswords[0]}`;
+  if (hint) {
+    const setup = loadSetup();
+    const code = setup && setup.team === team.id && setup.finalPassword ? setup.finalPassword : team.finalPasswords[0];
+    hint.textContent = `Temporärer Testcode: ${code}`;
+  }
 
   const form = root.querySelector('[data-final-password-form]');
   if (form) form.setAttribute('data-team', team.id);
@@ -405,7 +511,11 @@ function wireFinalPasswordForms() {
       form.classList.remove('is-shaking');
 
       const password = normalizePassword(input?.value || '');
-      const accepted = Boolean(team?.finalPasswords.some((candidate) => normalizePassword(candidate) === password));
+      const setup = loadSetup();
+      const useSetup = Boolean(setup && setup.team === teamId && setup.finalPassword);
+      const accepted = useSetup
+        ? normalizePassword(setup.finalPassword) === password
+        : Boolean(team?.finalPasswords.some((candidate) => normalizePassword(candidate) === password));
 
       if (!password) {
         setFeedback(feedback, 'Bitte den finalen Code eingeben.', 'error');
@@ -674,6 +784,7 @@ function wireQrCodes() {
 
 wirePageTransitions();
 wirePasswordForm();
+wireSetupForm();
 renderTeamPage();
 renderPhonePage();
 wireRevealButtons();

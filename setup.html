@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Escape Office | Setup</title>
+  <meta name="description" content="Setup-Konsole: Team-Ziel und Zugangscode für diesen Rechner festlegen.">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="landing-page setup-page">
+  <div class="noise" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+
+  <main class="setup-shell" aria-labelledby="setup-title">
+    <section class="briefing-card setup-card reveal-in">
+      <p class="eyebrow">Spielleiter · Setup</p>
+      <h1 id="setup-title">Rechner einrichten</h1>
+      <p class="briefing-text">
+        Lege fest, zu welcher Team-Seite dieser Rechner führt und welcher Zugangscode dafür gilt.
+        Es gibt genau ein richtiges Passwort. Diese Einstellung gilt nur für dieses Gerät.
+      </p>
+
+      <form class="password-form setup-form" id="setupForm" autocomplete="off">
+        <fieldset class="setup-fieldset">
+          <legend>Ziel-Team</legend>
+          <div class="setup-team-options" id="setupTeamOptions">
+            <label class="setup-team-option">
+              <input type="radio" name="team" value="team1" checked>
+              <span>Team 1</span>
+            </label>
+            <label class="setup-team-option">
+              <input type="radio" name="team" value="team2">
+              <span>Team 2</span>
+            </label>
+            <label class="setup-team-option">
+              <input type="radio" name="team" value="team3">
+              <span>Team 3</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <label for="setupPassword">Zugangscode</label>
+        <div class="password-row">
+          <input
+            id="setupPassword"
+            name="setupPassword"
+            type="text"
+            inputmode="text"
+            placeholder="z. B. aareon2026"
+            required
+          >
+          <button type="submit">Speichern</button>
+        </div>
+        <p class="hint" id="setupHint">Aktuell ist noch kein Setup gespeichert.</p>
+
+        <label for="setupFinalPassword">Krisenpasswort (Hacked-Seite)</label>
+        <div class="password-row">
+          <input
+            id="setupFinalPassword"
+            name="setupFinalPassword"
+            type="text"
+            inputmode="text"
+            placeholder="z. B. krise2026"
+            required
+          >
+        </div>
+        <p class="hint">Dieser Code entsperrt die Team-/Hacked-Seite und beendet den Lockdown.</p>
+        <p class="feedback" id="setupFeedback" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="setup-actions">
+        <a class="cta-button" href="./index.html">Zur Startseite</a>
+        <button type="button" class="back-link" id="setupReset">Setup zurücksetzen</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="./script.js" defer></script>
+</body>
+</html>
+
