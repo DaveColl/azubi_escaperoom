@@ -31,6 +31,8 @@ const PASSWORD_ROUTES = new Map([
 const TEAM_BY_UNLOCK = new Map(Object.values(TEAM_CONFIG).map((team) => [team.id, team]));
 
 const PAGE_TRANSITION_DURATION = 520;
+const HACK_SEQUENCE_LOAD_DURATION = 2250;
+const HACK_SEQUENCE_TOTAL_DURATION = 3900;
 const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)');
 const prefetchedPages = new Set();
 let navigationInProgress = false;
@@ -180,6 +182,44 @@ function wirePageTransitions() {
   });
 }
 
+function playTeamHackSequence(team, destination) {
+  const overlay = document.querySelector('#teamHackOverlay');
+  const title = document.querySelector('#hackOverlayTitle');
+  const teamLabel = document.querySelector('#hackOverlayTeam');
+  const message = document.querySelector('#hackOverlayMessage');
+  const progressFill = document.querySelector('#hackProgressFill');
+  const duration = REDUCED_MOTION.matches ? 900 : HACK_SEQUENCE_TOTAL_DURATION;
+  const revealHackDelay = REDUCED_MOTION.matches ? 120 : HACK_SEQUENCE_LOAD_DURATION;
+
+  prefetchPage(destination);
+
+  if (!overlay) {
+    navigateWithTransition(destination, duration);
+    return;
+  }
+
+  overlay.hidden = false;
+  overlay.classList.remove('is-visible', 'is-loading', 'is-hacked');
+  progressFill?.style.removeProperty('animation');
+
+  if (title) title.textContent = 'Sicherheitsroute wird geladen';
+  if (teamLabel) teamLabel.textContent = `${team.name} erkannt`;
+  if (message) message.textContent = 'Fortschritt 0% · Verbindung zum Lockdown-System wird aufgebaut...';
+
+  window.requestAnimationFrame(() => {
+    overlay.classList.add('is-visible', 'is-loading');
+  });
+
+  window.setTimeout(() => {
+    overlay.classList.add('is-hacked');
+    if (title) title.textContent = 'DU WURDEST GEHACKT';
+    if (teamLabel) teamLabel.textContent = `${team.name}-Bereich kompromittiert`;
+    if (message) message.textContent = 'Fortschritt 96% · Zugriff abgefangen · Team-Screen wird erzwungen...';
+  }, revealHackDelay);
+
+  navigateWithTransition(destination, duration);
+}
+
 function wirePasswordForm() {
   const form = document.querySelector('#passwordForm');
   if (!form) return;
@@ -189,6 +229,7 @@ function wirePasswordForm() {
   const unlockTeam = document.querySelector('#unlockTeam');
   const terminalPanel = document.querySelector('#terminalPanel');
   const laptop = document.querySelector('.laptop');
+  const submitButton = form.querySelector('button[type="submit"]');
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -215,18 +256,13 @@ function wirePasswordForm() {
       return;
     }
 
-    if (unlockTeam && team) {
-      unlockTeam.hidden = false;
-      unlockTeam.textContent = `${team.name} identifiziert · Lockdown-Protokoll wird geladen`;
-      window.requestAnimationFrame(() => unlockTeam.classList.add('is-visible'));
-    }
-
-    setFeedback(feedback, 'Code akzeptiert. Sicherheitsroute wird geöffnet...', 'success');
+    setFeedback(feedback, '', null);
+    unlockTeam?.setAttribute('hidden', '');
+    input.disabled = true;
+    submitButton?.setAttribute('disabled', '');
+    input.blur();
     laptop?.classList.add('is-unlocking');
-
-    window.setTimeout(() => {
-      navigateWithTransition(destination);
-    }, 1350);
+    playTeamHackSequence(team, destination);
   });
 }
 

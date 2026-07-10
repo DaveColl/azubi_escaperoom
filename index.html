@@ -73,6 +73,24 @@
     </section>
   </main>
 
+  <div class="hack-overlay" id="teamHackOverlay" role="status" aria-live="assertive" aria-atomic="true" hidden>
+    <div class="hack-card" aria-label="Team-Zugriff wird gehackt">
+      <div class="hack-grid" aria-hidden="true"></div>
+      <p class="hack-kicker">Remote intrusion detected</p>
+      <div class="hack-skull" aria-hidden="true">☠</div>
+      <h2 id="hackOverlayTitle">Teamroute wird geladen</h2>
+      <p class="hack-team" id="hackOverlayTeam">Team wird identifiziert</p>
+      <div class="hack-progress" aria-hidden="true">
+        <span id="hackProgressFill"></span>
+      </div>
+      <p class="hack-message" id="hackOverlayMessage">Verschlüsselte Sicherheitsroute wird initialisiert...</p>
+      <div class="hack-terminal" aria-hidden="true">
+        <span>&gt; bypass_firewall.exe</span>
+        <span>&gt; inject_team_route</span>
+        <span>&gt; override_lockdown_access</span>
+      </div>
+    </div>
+  </div>
 
   <script src="./script.js" defer></script>
 </body>
