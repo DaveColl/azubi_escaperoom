@@ -441,7 +441,11 @@ function renderTeamPage() {
 
   const canvas = root.querySelector('[data-qr-code]');
   if (canvas) {
-    canvas.setAttribute('data-qr-path', `./phone.html?team=${team.number}`);
+    const setup = loadSetup();
+    const email = (setup && setup.team === team.id && setup.email) ? setup.email : '';
+    let qrPath = `./phone.html?team=${team.number}`;
+    if (email) qrPath += `&mail=${encodeURIComponent(email)}`;
+    canvas.setAttribute('data-qr-path', qrPath);
     canvas.setAttribute('aria-label', `Animierter QR-Code für ${team.name}`);
   }
 
@@ -543,7 +547,9 @@ function renderPhonePage() {
   // --- Mail handoff (mailto:) ---
   const mailtoLink = root.querySelector('[data-phone-mailto]');
   const mailHint = root.querySelector('[data-phone-mail-hint]');
-  const email = (setup && setup.team === team.id && setup.email) ? setup.email : '';
+  const emailFromQuery = (new URLSearchParams(window.location.search).get('mail') || '').trim();
+  const emailFromSetup = (setup && setup.team === team.id && setup.email) ? setup.email : '';
+  const email = emailFromQuery || emailFromSetup;
   const subject = `Escape Office · ${team.name} · Beweisfoto`;
   const body = [
     `${team.name} meldet: Aufgabe erledigt.`,
