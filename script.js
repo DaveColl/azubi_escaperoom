@@ -549,9 +549,23 @@ function renderPhonePage() {
   const nextMailButton = root.querySelector('[data-phone-next-mail]');
   const fileName = `team${team.number}-jump-${formatDateStamp()}.jpg`;
 
+  let lastCapturedFile = null;
+
+  // On iOS the <a download> is ignored, so re-open the share sheet on tap.
+  downloadLink?.addEventListener('click', (event) => {
+    if (lastCapturedFile && navigator.canShare && navigator.canShare({ files: [lastCapturedFile] })) {
+      event.preventDefault();
+      navigator.share({ files: [lastCapturedFile], title: 'Escape Office · Beweisfoto' }).catch(() => {});
+    }
+  });
+
   captureInput?.addEventListener('change', () => {
     const file = captureInput.files && captureInput.files[0];
     if (!file) return;
+
+    // Normalise the captured file to a .jpg named File so it saves nicely everywhere.
+    const namedFile = new File([file], fileName, { type: file.type || 'image/jpeg' });
+    lastCapturedFile = namedFile;
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -559,14 +573,34 @@ function renderPhonePage() {
       if (previewImage) previewImage.src = dataUrl;
       preview?.removeAttribute('hidden');
 
+      // Always provide a manual download link (blob URL works on Android/desktop).
       if (downloadLink) {
-        downloadLink.href = dataUrl;
+        const blobUrl = URL.createObjectURL(namedFile);
+        downloadLink.href = blobUrl;
         downloadLink.setAttribute('download', fileName);
         downloadLink.removeAttribute('hidden');
-        // Auto-download to the device.
-        downloadLink.click();
       }
-      if (downloadNote) downloadNote.textContent = `Gespeichert als „${fileName}“. Falls das Foto nur geöffnet wurde, sichert es manuell.`;
+
+      // iOS Safari ignores the <a download> attribute, so use the native share
+      // sheet ("In Fotos sichern"/"In Dateien sichern") when available. This
+      // runs inside the file-input change handler, which counts as a user
+      // gesture, so navigator.share is allowed.
+      const canShareFile = navigator.canShare && navigator.canShare({ files: [namedFile] });
+      if (canShareFile) {
+        navigator.share({ files: [namedFile], title: 'Escape Office · Beweisfoto' })
+          .then(() => {
+            if (downloadNote) downloadNote.textContent = `Foto „${fileName}“ – wählt „In Fotos sichern“ oder „In Dateien sichern“.`;
+          })
+          .catch(() => {
+            // User cancelled the share sheet – keep the manual download link visible.
+            if (downloadNote) downloadNote.textContent = `Nicht gespeichert? Tippt auf „Foto erneut speichern“ und wählt „Sichern“.`;
+          });
+      } else if (downloadLink) {
+        // Android/desktop: trigger the download automatically.
+        downloadLink.click();
+        if (downloadNote) downloadNote.textContent = `Gespeichert als „${fileName}“. Falls das Foto nur geöffnet wurde, sichert es manuell.`;
+      }
+
       nextMailButton?.removeAttribute('hidden');
     };
     reader.readAsDataURL(file);
